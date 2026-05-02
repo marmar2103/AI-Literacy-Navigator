@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Literacy Navigator (SDG4)</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f7fa;
+    color: #333;
+}
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+}
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+h1, h2 { text-align: center; }
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #4a6cf7;
+    color: white;
+    margin-top: 10px;
+}
+button:hover { opacity: 0.9; }
+
+.options button {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    background: #eef1ff;
+    color: #333;
+}
+
+.progress {
+    height: 8px;
+    background: #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+.progress-bar {
+    height: 100%;
+    background: #4a6cf7;
+    border-radius: 5px;
+    width: 0%;
+}
+
+.hidden { display: none; }
+
+.result-bar {
+    background: #ddd;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+.result-fill {
+    height: 10px;
+    background: #4a6cf7;
+    border-radius: 5px;
+}
+
+.alpha-box {
+    background: #eef1ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<div id="app" class="card">
+
+<h1>AI Literacy Navigator</h1>
+<p style="text-align:center;">Powered by AlphaMater — Ethical AI for Education (SDG4)</p>
+
+<!-- ROLE -->
+<div id="role-selection">
+    <h2>Select your role</h2>
+    <button onclick="start('student')">I am a Student</button>
+    <button onclick="start('teacher')">I am a Teacher</button>
+    <button onclick="start('parent')">I am a Parent</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="hidden">
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="hidden">
+
+    <div class="alpha-box" id="alphaInsight"></div>
+
+    <h2>Your Profile</h2>
+    <p id="profile"></p>
+
+    <h3>Score Breakdown</h3>
+    <div id="scores"></div>
+
+    <h3>Insights</h3>
+    <p id="insights"></p>
+
+    <h3>Recommendations</h3>
+    <ul id="recommendations"></ul>
+
+    <button onclick="restart()">Restart</button>
+</div>
+
+</div>
+</div>
+
+<script>
+let role, index = 0, answers = [];
+
+const questions = [
+{q:"How familiar are you with AI tools?", type:"scale"},
+{q:"How often do you use AI?", type:"scale"},
+{q:"AI tools can be biased.", type:"mc", options:["Agree","Unsure","Disagree"]},
+{q:"Do you verify AI-generated information?", type:"scale"},
+{q:"Do you trust AI answers immediately?", type:"mc", options:["Yes","Sometimes","No"]},
+{q:"Do you understand privacy risks?", type:"scale"},
+{q:"Do you rely on AI instead of thinking critically?", type:"scale"},
+{q:"Do you have reliable access to technology?", type:"scale"},
+{q:"Can you guide others in AI use?", type:"scale"},
+{q:"Your environment supports ethical AI use.", type:"scale"}
+];
+
+function start(r) {
+    role = r;
+    document.getElementById("role-selection").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+    loadQuestion();
+}
+
+function loadQuestion() {
+    let q = questions[index];
+    document.getElementById("question").innerText = q.q;
+
+    let optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    if (q.type === "scale") {
+        for (let i=1;i<=5;i++) {
+            let btn = document.createElement("button");
+            btn.innerText = i;
+            btn.onclick = () => answer(i);
+            optionsDiv.appendChild(btn);
+        }
+    } else {
+        q.options.forEach((opt,i)=>{
+            let btn = document.createElement("button");
+            btn.innerText = opt;
+            btn.onclick = () => answer(i+1);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    document.getElementById("progress").style.width =
+        ((index/questions.length)*100)+"%";
+}
+
+function answer(val) {
+    answers.push(val);
+    index++;
+    if (index < questions.length) loadQuestion();
+    else showResults();
+}
+
+function calculateScores() {
+    return {
+        awareness: (answers[0] + answers[3]) / 2,
+        usage: (answers[1] + answers[6]) / 2,
+        ethics: (answers[2] + answers[5]) / 2,
+        critical: (answers[4] + answers[6]) / 2,
+        access: (answers[7] + answers[9]) / 2
+    };
+}
+
+function showResults() {
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("results").classList.remove("hidden");
+
+    let avg = answers.reduce((a,b)=>a+b,0)/answers.length;
+
+    let profile =
+        avg < 2.5 ? "Emerging User" :
+        avg < 3.8 ? "Developing User" :
+        avg < 4.5 ? "Responsible Integrator" :
+        "Advanced Ethical User";
+
+    document.getElementById("profile").innerText =
+        profile + " — Evaluated by AlphaMater";
+
+    let scores = calculateScores();
+
+    // SCORE BARS
+    let scoresDiv = document.getElementById("scores");
+    scoresDiv.innerHTML = "";
+    Object.entries(scores).forEach(([key,val])=>{
+        scoresDiv.innerHTML += `
+        <div>${key}</div>
+        <div class="result-bar">
+            <div class="result-fill" style="width:${val*20}%"></div>
+        </div>`;
+    });
+
+    // ROLE INSIGHT
+    let roleInsight =
+        role==="teacher" ? "As a teacher, you shape how students use AI responsibly." :
+        role==="student" ? "As a student, balancing AI with critical thinking is essential." :
+        "As a parent, your awareness influences safe AI use at home.";
+
+    // MAIN INSIGHT
+    let insight =
+        avg < 3 ? "You are at an early stage of AI literacy." :
+        avg < 4 ? "You are progressing but need stronger critical awareness." :
+        "You demonstrate strong and responsible AI usage.";
+
+    document.getElementById("insights").innerText = insight + " " + roleInsight;
+
+    // ALPHAMATER MESSAGE
+    document.getElementById("alphaInsight").innerText =
+        "AlphaMater Insight: Your responses reveal behavioral patterns that indicate how you interact with AI ethically and critically.";
+
+    // RECOMMENDATIONS
+    let recs = document.getElementById("recommendations");
+    recs.innerHTML = "";
+
+    function addRec(text){
+        let li = document.createElement("li");
+        li.innerText = text;
+        recs.appendChild(li);
+    }
+
+    if (scores.ethics < 3) addRec("Learn about AI bias and fairness.");
+    if (scores.critical < 3) addRec("Verify AI-generated information.");
+    if (scores.usage > 4 && scores.critical < 3)
+        addRec("Reduce over-reliance on AI.");
+    if (scores.access < 3)
+        addRec("Improve access to digital tools.");
+}
+
+function restart() {
+    index = 0;
+    answers = [];
+    document.getElementById("results").classList.add("hidden");
+    document.getElementById("role-selection").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
