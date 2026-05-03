@@ -71,13 +71,38 @@ button:hover { opacity: 0.9; }
 }
 
 .alpha-box {
-    background: #eef1ff;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 15px;
+    background: linear-gradient(135deg, #eef1ff, #ffffff);
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 20px;
     font-style: italic;
+    border-left: 5px solid #4a6cf7;
 }
-</style>
+</style>.result-card {
+    padding: 20px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.metrics {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.metric {
+    text-align: center;
+    background: #eef1ff;
+    padding: 10px 20px;
+    border-radius: 12px;
+}
+
+.metric div {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4a6cf7;
+}
 </head>
 
 <body>
@@ -115,6 +140,33 @@ AI-powered diagnostic tool for ethical education (SDG4)
 
 <!-- RESULTS -->
 <div id="results" class="hidden">
+
+    <div class="result-card">
+        <div class="alpha-box" id="alphaInsight"></div>
+
+        <h2>AI Literacy Report</h2>
+        <p id="profile" style="text-align:center; font-weight:bold;"></p>
+
+        <div class="metrics">
+            <div class="metric">
+                <div id="confidenceScore">0%</div>
+                <span>Confidence</span>
+            </div>
+        </div>
+
+        <h3>Score Breakdown</h3>
+        <div id="scores"></div>
+
+        <h3>AlphaMaster Analysis</h3>
+        <p id="insights"></p>
+
+        <h3>Recommendations</h3>
+        <ul id="recommendations"></ul>
+
+        <button onclick="restart()">Restart</button>
+    </div>
+
+</div>
 
     <div class="alpha-box" id="alphaInsight"></div>
 
