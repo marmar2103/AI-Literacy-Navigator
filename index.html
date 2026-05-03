@@ -12,17 +12,20 @@ body {
     background: #f5f7fa;
     color: #333;
 }
+
 .container {
     max-width: 700px;
     margin: auto;
     padding: 20px;
 }
+
 .card {
     background: white;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
+
 h1, h2 { text-align: center; }
 
 button {
@@ -34,6 +37,7 @@ button {
     color: white;
     margin-top: 10px;
 }
+
 button:hover { opacity: 0.9; }
 
 .options button {
@@ -50,6 +54,7 @@ button:hover { opacity: 0.9; }
     border-radius: 5px;
     margin-bottom: 15px;
 }
+
 .progress-bar {
     height: 100%;
     background: #4a6cf7;
@@ -64,6 +69,7 @@ button:hover { opacity: 0.9; }
     border-radius: 5px;
     margin: 5px 0;
 }
+
 .result-fill {
     height: 10px;
     background: #4a6cf7;
@@ -78,7 +84,7 @@ button:hover { opacity: 0.9; }
     font-style: italic;
     border-left: 5px solid #4a6cf7;
 }
-</style>
+
 .result-card {
     padding: 20px;
     border-radius: 16px;
@@ -105,13 +111,15 @@ button:hover { opacity: 0.9; }
     color: #4a6cf7;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-<div id="app" class="card">
+<div class="card">
 
+<!-- HEADER -->
 <div style="text-align:center; margin-bottom:10px;">
     <div style="font-size:30px; font-weight:bold;">
         <span style="color:#4a6cf7;">Alpha</span><span style="color:#1a1a1a;">Master</span>
@@ -125,7 +133,7 @@ button:hover { opacity: 0.9; }
 AI-powered diagnostic tool for ethical education (SDG4)
 </p>
 
-<!-- ROLE -->
+<!-- ROLE SELECTION -->
 <div id="role-selection">
     <h2>Select your role</h2>
     <button onclick="start('student')">I am a Student</button>
@@ -135,7 +143,9 @@ AI-powered diagnostic tool for ethical education (SDG4)
 
 <!-- QUIZ -->
 <div id="quiz" class="hidden">
-    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+    <div class="progress">
+        <div class="progress-bar" id="progress"></div>
+    </div>
     <h2 id="question"></h2>
     <div class="options" id="options"></div>
 </div>
@@ -144,9 +154,11 @@ AI-powered diagnostic tool for ethical education (SDG4)
 <div id="results" class="hidden">
 
     <div class="result-card">
+
         <div class="alpha-box" id="alphaInsight"></div>
 
         <h2>AI Literacy Report</h2>
+
         <p id="profile" style="text-align:center; font-weight:bold;"></p>
 
         <div class="metrics">
@@ -166,31 +178,16 @@ AI-powered diagnostic tool for ethical education (SDG4)
         <ul id="recommendations"></ul>
 
         <button onclick="restart()">Restart</button>
+
     </div>
 
-</div>
-
-    <div class="alpha-box" id="alphaInsight"></div>
-
-    <h2>Your Profile</h2>
-    <p id="profile"></p>
-
-    <h3>Score Breakdown</h3>
-    <div id="scores" style="margin-top:10px;"></div>
-
-    <h3>Insights</h3>
-    <p id="insights"></p>
-
-    <h3>Recommendations</h3>
-    <ul id="recommendations"></ul>
-
-    <button onclick="restart()">Restart</button>
 </div>
 
 </div>
 </div>
 
 <script>
+
 let role, index = 0, answers = [];
 
 const questions = [
@@ -221,30 +218,34 @@ function loadQuestion() {
     optionsDiv.innerHTML = "";
 
     if (q.type === "scale") {
-        for (let i=1;i<=5;i++) {
+        for (let i = 1; i <= 5; i++) {
             let btn = document.createElement("button");
             btn.innerText = i;
             btn.onclick = () => answer(i);
             optionsDiv.appendChild(btn);
         }
     } else {
-        q.options.forEach((opt,i)=>{
+        q.options.forEach((opt, i) => {
             let btn = document.createElement("button");
             btn.innerText = opt;
-            btn.onclick = () => answer(i+1);
+            btn.onclick = () => answer(i + 1);
             optionsDiv.appendChild(btn);
         });
     }
 
     document.getElementById("progress").style.width =
-        ((index/questions.length)*100)+"%";
+        ((index / questions.length) * 100) + "%";
 }
 
 function answer(val) {
     answers.push(val);
     index++;
-    if (index < questions.length) loadQuestion();
-    else showResults();
+
+    if (index < questions.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
 }
 
 function calculateScores() {
@@ -258,75 +259,78 @@ function calculateScores() {
 }
 
 function showResults() {
+
     document.getElementById("quiz").classList.add("hidden");
     document.getElementById("results").classList.remove("hidden");
 
     let avg = answers.reduce((a,b)=>a+b,0)/answers.length;
-    let riskLevel =
-    avg < 2.5 ? "High Risk" :
-    avg < 3.8 ? "Moderate Risk" :
-    "Low Risk";
+
     let profile =
         avg < 2.5 ? "Emerging User" :
         avg < 3.8 ? "Developing User" :
         avg < 4.5 ? "Responsible Integrator" :
         "Advanced Ethical User";
 
+    let risk =
+        avg < 2.5 ? "High Risk" :
+        avg < 3.8 ? "Moderate Risk" :
+        "Low Risk";
+
     document.getElementById("profile").innerText =
-    profile + " — Evaluated by AlphaMaster | Risk Level: " + riskLevel;
+        profile + " — Risk Level: " + risk;
+
+    document.getElementById("confidenceScore").innerText =
+        Math.round(avg * 20) + "%";
 
     let scores = calculateScores();
 
-    // SCORE BARS
     let scoresDiv = document.getElementById("scores");
     scoresDiv.innerHTML = "";
+
     Object.entries(scores).forEach(([key,val])=>{
         scoresDiv.innerHTML += `
-    <div style="margin-bottom:10px;">
-        <div style="display:flex; justify-content:space-between;">
-            <span style="text-transform:capitalize;">${key}</span>
-            <span>${Math.round(val*20)}%</span>
-        </div>
-        <div class="result-bar">
-            <div class="result-fill" style="width:${val*20}%"></div>
-        </div>
-    </div>`;
+        <div style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between;">
+                <span style="text-transform:capitalize;">${key}</span>
+                <span>${Math.round(val*20)}%</span>
+            </div>
+            <div class="result-bar">
+                <div class="result-fill" style="width:${val*20}%"></div>
+            </div>
+        </div>`;
     });
 
-    // ROLE INSIGHT
     let roleInsight =
-        role==="teacher" ? "As a teacher, you shape how students use AI responsibly." :
-        role==="student" ? "As a student, balancing AI with critical thinking is essential." :
-        "As a parent, your awareness influences safe AI use at home.";
+        role==="teacher" ? "As a teacher, you shape responsible AI use." :
+        role==="student" ? "As a student, balance AI with critical thinking." :
+        "As a parent, you guide safe AI habits at home.";
 
-    // MAIN INSIGHT
     let insight =
-        avg < 3 ? "You are at an early stage of AI literacy." :
-        avg < 4 ? "You are progressing but need stronger critical awareness." :
-        "You demonstrate strong and responsible AI usage.";
+        avg < 3 ? "Early-stage AI literacy." :
+        avg < 4 ? "Developing awareness but needs strengthening." :
+        "Strong ethical AI awareness.";
 
-    document.getElementById("insights").innerText = insight + " " + roleInsight;
+    document.getElementById("insights").innerText =
+        insight + " " + roleInsight;
 
-    // ALPHAMASTER MESSAGE
     document.getElementById("alphaInsight").innerText =
-        "AlphaMaster Insight: Your responses reveal behavioral patterns that indicate how you interact with AI ethically and critically.";
+        "AlphaMaster Insight: Your AI interaction patterns reflect your ethical and cognitive readiness level.";
 
-    // RECOMMENDATIONS
     let recs = document.getElementById("recommendations");
     recs.innerHTML = "";
 
-    function addRec(text){
+    function add(t){
         let li = document.createElement("li");
-        li.innerText = text;
+        li.innerText = t;
         recs.appendChild(li);
     }
 
-    if (scores.ethics < 3) addRec("Learn about AI bias and fairness.");
-    if (scores.critical < 3) addRec("Verify AI-generated information.");
+    if (scores.ethics < 3) add("Learn about AI bias and fairness.");
+    if (scores.critical < 3) add("Verify AI outputs before trusting them.");
     if (scores.usage > 4 && scores.critical < 3)
-        addRec("Reduce over-reliance on AI.");
+        add("Reduce over-reliance on AI.");
     if (scores.access < 3)
-        addRec("Improve access to digital tools.");
+        add("Improve access to digital tools.");
 }
 
 function restart() {
@@ -335,6 +339,7 @@ function restart() {
     document.getElementById("results").classList.add("hidden");
     document.getElementById("role-selection").classList.remove("hidden");
 }
+
 </script>
 
 </body>
