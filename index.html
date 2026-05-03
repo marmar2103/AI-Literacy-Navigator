@@ -122,7 +122,7 @@ AI-powered diagnostic tool for ethical education (SDG4)
     <p id="profile"></p>
 
     <h3>Score Breakdown</h3>
-    <div id="scores"></div>
+    <div id="scores" style="margin-top:10px;"></div>
 
     <h3>Insights</h3>
     <p id="insights"></p>
@@ -225,10 +225,15 @@ function showResults() {
     scoresDiv.innerHTML = "";
     Object.entries(scores).forEach(([key,val])=>{
         scoresDiv.innerHTML += `
-        <div>${key}</div>
+    <div style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between;">
+            <span style="text-transform:capitalize;">${key}</span>
+            <span>${Math.round(val*20)}%</span>
+        </div>
         <div class="result-bar">
             <div class="result-fill" style="width:${val*20}%"></div>
-        </div>`;
+        </div>
+    </div>`;
     });
 
     // ROLE INSIGHT
