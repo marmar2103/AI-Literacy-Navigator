@@ -208,7 +208,10 @@ function showResults() {
     document.getElementById("results").classList.remove("hidden");
 
     let avg = answers.reduce((a,b)=>a+b,0)/answers.length;
-
+    let riskLevel =
+    avg < 2.5 ? "High Risk" :
+    avg < 3.8 ? "Moderate Risk" :
+    "Low Risk";
     let profile =
         avg < 2.5 ? "Emerging User" :
         avg < 3.8 ? "Developing User" :
@@ -216,7 +219,7 @@ function showResults() {
         "Advanced Ethical User";
 
     document.getElementById("profile").innerText =
-        profile + " — Evaluated by AlphaMaster";
+    profile + " — Evaluated by AlphaMaster | Risk Level: " + riskLevel;
 
     let scores = calculateScores();
 
